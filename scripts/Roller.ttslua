@@ -1,0 +1,132 @@
+local Event  = require("BeaverStash.Event")
+local Table  = require("BeaverStash.Table")
+
+---@alias tbt__Rollable tts__Die | tts__Coin
+
+---@class tbt__Roller
+---@field player table<tts__PlayerColor, table<tbt__Rollable, boolean>>
+local Roller = {
+    player = {} -- if the rollable is mapped to true then it is resting and to false if it does not
+}
+
+---@param rollable tbt__Rollable
+---@param color tts__PlayerColor
+function Roller.addRollable(rollable, color)
+    Roller.player[color]           = Roller.player[color] or {} -- make sure the table exists
+    Roller.player[color][rollable] = Roller.player[color][rollable] == true -- if the rollable exists and rolling then keep true, if anything else then false
+
+    rollable.highlightOn(Color.fromString(color))
+    rollable.setColorTint(Color.fromString(color))
+end
+
+---@param rollable tbt__Rollable
+---@return tts__PlayerColor | nil
+function Roller.rolledBy(rollable)
+    for color, rollables in pairs(Roller.player) do
+        if rollables[rollable] ~= nil then
+            return color
+        end
+    end
+
+    return nil
+end
+
+---@param obj tts__Object
+---@param color tts__PlayerColor
+---@return boolean
+function Roller.handleRandomize(obj, color)
+    if obj.type == "Dice" or obj.type == "Coin" then
+        local rollable = --[[---@type tbt__Rollable]] obj
+        local rolledBy = Roller.rolledBy(rollable)
+        if rolledBy ~= nil and rolledBy ~= color then return false end
+        Roller.addRollable(rollable, color)
+    end
+
+    return true
+end
+
+---@param obj tts__Object
+function Roller.removeRollable(obj)
+    if obj.type ~= "Dice" and obj.type ~= "Coin" then return end
+
+    local rollable = --[[---@type tbt__Rollable]] obj
+
+    local rolledBy = Roller.rolledBy(rollable)
+
+    if rolledBy ~= nil then
+        Roller.player[--[[---@not nil ]]rolledBy][rollable] = nil
+    end
+end
+
+function Roller.handleRollables()
+    for color, rollables in pairs(Roller.player) do
+        local allResting      = true
+        local empty           = true
+
+        local dotResults      = --[[---@type number[] ]]{}
+        local rollableResults = --[[---@type table<string, number> ]] {}
+
+        for rollable, resting in pairs(rollables) do
+            empty = false
+            if rollable.resting then
+                rollables[rollable] = true -- if the rollable is resting record it as such
+                rollable.setLock(true)
+                rollable.interactable = true
+
+                local rotValue        = rollable.getRotationValue()
+                if type(rotValue) == "number" then
+                    table.insert(dotResults, --[[---@type number]]rotValue)
+                else
+                    rollableResults[--[[---@type string]]rotValue] = (rollableResults[--[[---@type string]]rotValue] or 0) + 1
+                end
+            else
+                allResting = false
+            end
+        end
+
+        if allResting and not empty then
+            local stringResults = --[[---@type string[] ]]{}
+
+            if dotResults[1] ~= nil then
+                table.insert(
+                        stringResults,
+                        Table.reduce(dotResults, function(total, cur)
+                            return total + cur
+                        end) .. " Dots"
+                )
+            end
+
+            for name, amount in pairs(rollableResults) do
+                table.insert(stringResults, ("%s %s"):format(amount, name))
+            end
+
+            local notice = ("%s rolled a total of %s."):format(
+                    color,
+                    table.concat(stringResults, ", ")
+            )
+
+            if Table.len(dotResults) > 1 then
+                notice = notice .. ("\n(%s)"):format(table.concat(dotResults, " + "))
+            end
+
+            broadcastToAll(
+                    notice,
+                    color
+            )
+
+            for rollable, _ in pairs(Roller.player[color]) do
+                rollable.highlightOff()
+                rollable.setColorTint(Color.fromString("White"))
+                rollable.setLock(false)
+                rollable.interactable = true
+            end
+
+            Roller.player[color] = {}
+        end
+    end
+end
+
+Event.add("tryObjectRandomize", Roller.handleRandomize)
+Event.add("onObjectDestroy", Roller.removeRollable)
+
+Wait.time(Roller.handleRollables, 0.2, -1)
