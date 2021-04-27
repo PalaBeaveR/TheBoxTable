@@ -5,6 +5,9 @@ But there also exist [mods](https://steamcommunity.com/sharedfiles/filedetails/?
 The point of this table is to have a cool box table(who doesn't want to play "The Box" on a Box right?) and automate the
 boring tasks(such as importing mods, counting dice etc.).
 
+If you want to try it out in-game then go to
+it's [workshop page](https://steamcommunity.com/sharedfiles/filedetails/?id=2469748308).
+
 ---
 
 Current automations include:
