@@ -13,5 +13,9 @@ it's [workshop page](https://steamcommunity.com/sharedfiles/filedetails/?id=2469
 Current automations include:
 
 - Roller
-    - counts the values on your rolled dice/coins
-    - protects the dice/coins you rolled from being rolled by other players
+  - counts the values on your rolled dice/coins
+  - protects the dice/coins you rolled from being rolled by other players
+
+- Setup
+  - currently only as a command (!setup \<amount of cards\>)
+  - only normal setup
