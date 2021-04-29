@@ -1,1 +1,2 @@
 require("mods.TheBoxTable.scripts.Roller")
+require("mods.TheBoxTable.scripts.Setup")

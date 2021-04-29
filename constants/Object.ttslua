@@ -1,0 +1,34 @@
+local ObjectZone      = require("BeaverStash.ObjectZone")
+local Position        = require("Mods.TheBoxTable.constants.Position")
+local Size            = require("Mods.TheBoxTable.constants.Size")
+
+---@class tbt__ObjectConstants
+---@field [string] bs__ObjectZone
+local Object          = {}
+
+Object.BoxBox         = ObjectZone({
+    position = Position.BoxBox,
+    type     = "Bag"
+})
+
+Object.TheStack       = ObjectZone({
+    position = Position.TheStack,
+    type     = "Bag"
+})
+
+Object.UnmarkedBoxBox = ObjectZone({
+    position = Position.UnmarkedBoxBox,
+    type     = "Bag"
+})
+
+Object.StarterCards   = ObjectZone({
+    position = Size.MarginedAndPadded.Card * Vector(0, 0, 2),
+    type     = "Deck"
+})
+
+Object.BasicBox       = ObjectZone({
+    position = Vector(0, 0, 0),
+    type     = "Deck"
+})
+
+return Object

@@ -1,0 +1,41 @@
+local Object  = require("Mods.TheBoxTable.constants.Object")
+local Command = require("BeaverStash.Command")
+
+---@param args string[]
+local function Setup(ply, args)
+    local amount = tonumber(args[1])
+    if amount == nil then return print("Please supply a starting card amount!") end
+
+    local StarterCards = --[[---@not nil]] Object.StarterCards:find() -- find() searches for an object with the appropriate type in a radius of 1 unit around the set position. The closest one will be returned and set to .obj. Returns nil if none is found.
+    if Object.StarterCards.obj == nil then
+        return print("Starter Cards are not in their designated spot!")
+    end
+
+    if StarterCards.getQuantity() < amount then
+        return print("The Starter Cards deck only has " .. StarterCards.getQuantity() .. " cards and not " .. amount .. ".\nPlease input an appropriate amount.")
+    end
+
+    local BasicBox = --[[---@not nil]] Object.BasicBox:find()
+    if Object.BasicBox.obj == nil then
+        return print("Basic Box is not in it's designated spot!")
+    end
+
+    StarterCards.shuffle()
+
+    for i = 1, amount do
+        StarterCards.takeObject({
+            smooth            = false,
+            callback_function = function(card)
+                BasicBox.putObject(card)
+                if i == amount then
+                    BasicBox.shuffle()
+                    BasicBox.deal(2)
+
+                    broadcastToAll("Play any \"[ff0000]Play Immediately[-]\" cards in your hand!")
+                end
+            end
+        })
+    end
+end
+
+Command.add("setup", Setup, true)

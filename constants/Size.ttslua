@@ -1,0 +1,31 @@
+---@class tbt__SizeConstants
+---@field [string] tts__Vector
+---@field Margined table<string, tts__Vector>
+---@field Padded table<string, tts__Vector>
+---@field MarginedAndPadded table<string, tts__Vector>
+local Size             = {}
+
+Size.Card              = Vector(3.062551, 0.036777, 2.187639)
+
+Size.Box               = Vector(2, 2.548113, 3)
+
+Size.UnmarkedBoxBox    = Size.Box * 1.9
+Size.BoxBox            = Size.Box * 2.15
+Size.TheStack          = Size.Box * 1.9
+
+local MARGIN           = Vector(0.1, 0, 0.1)
+local PADDING          = Vector(0.1, 0, 0.1)
+
+Size.Margined          = {}
+Size.Padded            = {}
+Size.MarginedAndPadded = {}
+
+for k, v in pairs(--[[---@type table<string, tts__Vector> ]]Size) do
+    if k ~= "Margined" and k ~= "Padded" and k ~= "MarginedAndPadded" then
+        Size.Margined[k]          = v + MARGIN
+        Size.Padded[k]            = v + PADDING
+        Size.MarginedAndPadded[k] = v + MARGIN + PADDING
+    end
+end
+
+return Size
