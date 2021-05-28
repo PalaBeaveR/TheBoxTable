@@ -6,29 +6,34 @@ local Size            = require("Mods.TheBoxTable.constants.Size")
 ---@field [string] bs__ObjectZone
 local Object          = {}
 
+Object.BoxTable       = ObjectZone({
+    position = Vector(0, 0, 0),
+    type     = "Board",
+})
+
 Object.BoxBox         = ObjectZone({
-    position = Position.BoxBox,
-    type     = "Bag"
+    position = Position.BoxBox + Vector(0, Size.BoxBox.y / 2, 0),
+    type     = "Bag",
 })
 
 Object.TheStack       = ObjectZone({
-    position = Position.TheStack,
-    type     = "Bag"
+    position = Position.TheStack + Vector(0, Size.TheStack.y / 2, 0),
+    type     = "Bag",
 })
 
 Object.UnmarkedBoxBox = ObjectZone({
-    position = Position.UnmarkedBoxBox,
-    type     = "Bag"
+    position = Position.UnmarkedBoxBox + Vector(0, Size.UnmarkedBoxBox.y / 2, 0),
+    type     = "Bag",
 })
 
 Object.StarterCards   = ObjectZone({
     position = Size.MarginedAndPadded.Card * Vector(0, 0, 2),
-    type     = "Deck"
+    type     = "Deck",
 })
 
 Object.BasicBox       = ObjectZone({
-    position = Vector(0, 0, 0),
-    type     = "Deck"
+    position = Position.BasicBox,
+    type     = "Deck",
 })
 
 return Object
