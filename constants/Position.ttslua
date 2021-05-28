@@ -1,9 +1,18 @@
+local Size              = require("Mods.TheBoxTable.constants.Size")
+
 ---@class tbt__PositionConstants
 ---@field [string] tts__Vector
 local Position          = {}
 
+Position.BasicBox       = Vector(0, 0, 0)
+
 Position.UnmarkedBoxBox = Vector(60, 1.905, 6.275)
 Position.BoxBox         = Vector(60, 0, 0)
 Position.TheStack       = Vector(60, 1.905, -6.275)
+
+Position.KeepInFront    = Vector(0, 0, 5)
+Position.Notecard       = Vector(0, 0, -5)
+Position.CountersRight  = Position.Notecard + Vector(Size.MarginedAndPadded.Notecard.x / 2, 0, 0)
+Position.CountersLeft   = Position.Notecard - Vector(Size.MarginedAndPadded.Notecard.x / 2, 0, 0)
 
 return Position
