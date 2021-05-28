@@ -1,0 +1,106 @@
+local SnapPoint = require("BeaverStash.SnapPoint")
+local Size      = require("Mods.TheBoxTable.constants.Size")
+local Object    = require("Mods.TheBoxTable.constants.Object")
+local Position  = require("Mods.TheBoxTable.constants.Position")
+local Command   = require("BeaverStash.Command")
+local vector    = require("BeaverStash.vector")
+
+---@type table<number, number>
+local playRows  = {
+    [-5] = 9,
+    [-3] = 1,
+    [-1] = 11,
+    [0]  = 11,
+    [1]  = 11,
+    [3]  = 11,
+}
+
+---@param ply tts__Player
+---@param args string[]
+---@return void
+local function generateSnapPoints(ply, args)
+    local BoxTable = --[[---@not nil]] Object.BoxTable:find()
+
+    if not BoxTable then
+        return printToColor("The Box Table doesn't exist. Snap Points will not be created.", ply.color)
+    end
+
+    ---@type tts__Object_SnapPointParameters[]
+    local snapPoints = {}
+
+    for _, color in pairs(Player.getAvailableColors()) do
+        local player = Player[color]
+        local hand   = player.getHandTransform()
+
+        -- Keep in Front
+        SnapPoint.createGrid(snapPoints, {
+            origin         = vector.toWorld(Position.KeepInFront:copy(), hand.position, hand.rotation),
+            originRotation = hand.rotation,
+            pointRotation  = Vector(0, 180, 0),
+            spacing        = Size.MarginedAndPadded.Card90,
+            rows           = 1,
+            columns        = 9,
+            tags           = { "Type: Card" }
+        })
+
+        -- Notecard
+        SnapPoint.createGrid(snapPoints, {
+            origin         = vector.toWorld(Position.Notecard:copy(), hand.position, hand.rotation),
+            originRotation = hand.rotation,
+            spacing        = Size.MarginedAndPadded.Notecard,
+            rows           = 1,
+            columns        = 1,
+            tags           = { "Type: Notecard" }
+        })
+
+        -- Notecard Slots
+        SnapPoint.createGrid(snapPoints, {
+            origin         = vector.toWorld(Position.Notecard:copy(), hand.position, hand.rotation),
+            originRotation = hand.rotation,
+            pointRotation  = Vector(0, 180, 0),
+            spacing        = Size.MarginedAndPadded.Card90,
+            rows           = 1,
+            columns        = 3,
+            tags           = { "Type: Card" }
+        })
+
+        -- Left Counters
+        SnapPoint.createGrid(snapPoints, {
+            origin         = vector.toWorld(Position.CountersLeft:copy(), hand.position, hand.rotation),
+            originRotation = hand.rotation,
+            spacing        = Size.MarginedAndPadded.Counter90,
+            rows           = 2,
+            columns        = 4,
+            tags           = { "Type: Counter" },
+            hAnchor        = 1
+        })
+
+        -- Right Counters
+        SnapPoint.createGrid(snapPoints, {
+            origin         = vector.toWorld(Position.CountersRight:copy(), hand.position, hand.rotation),
+            originRotation = hand.rotation,
+            spacing        = Size.MarginedAndPadded.Counter90,
+            rows           = 2,
+            columns        = 4,
+            tags           = { "Type: Counter" },
+            hAnchor        = 0
+        })
+
+        -- Play Zone Rows
+        for row, size in pairs(playRows) do
+            SnapPoint.createGrid(snapPoints, {
+                origin         = Vector(Size.MarginedAndPadded.Card.x * row, 0, 0),
+                originRotation = Vector(0, -90, 0),
+                pointRotation  = Vector(0, 180, 0),
+                spacing        = Size.MarginedAndPadded.Card90,
+                rows           = 1,
+                columns        = size,
+                tags           = { "Type: Card", "Type: Deck" }
+            })
+        end
+    end
+
+    BoxTable.setSnapPoints(snapPoints)
+end
+
+Command.add("generateSnapPoints", generateSnapPoints, true)
