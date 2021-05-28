@@ -130,3 +130,5 @@ Event.add("tryObjectRandomize", Roller.handleRandomize)
 Event.add("onObjectDestroy", Roller.removeRollable)
 
 Wait.time(Roller.handleRollables, 0.2, -1)
+
+return Roller
