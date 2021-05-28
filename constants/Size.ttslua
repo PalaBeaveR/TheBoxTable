@@ -6,12 +6,18 @@
 local Size             = {}
 
 Size.Card              = Vector(3.062551, 0.036777, 2.187639)
+Size.Card90            = Vector(2.187639, 0.036777, 3.062551)
 
 Size.Box               = Vector(2, 2.548113, 3)
 
 Size.UnmarkedBoxBox    = Size.Box * 1.9
 Size.BoxBox            = Size.Box * 2.15
 Size.TheStack          = Size.Box * 1.9
+
+Size.Notecard          = Vector(6.903116, 0.143492, 4.130409)
+
+Size.Counter           = Vector(1.951549, 0.687503, 2.967419)
+Size.Counter90         = Vector(2.967419, 0.687503, 1.951549)
 
 local MARGIN           = Vector(0.1, 0, 0.1)
 local PADDING          = Vector(0.1, 0, 0.1)
