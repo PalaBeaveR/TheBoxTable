@@ -1,0 +1,26 @@
+local Object   = require("Mods.TheBoxTable.constants.Object")
+local Position = require("Mods.TheBoxTable.constants.Position")
+local Table    = require("BeaverStash.Table")
+local vector   = require("BeaverStash.vector")
+
+---@param ref tts__ObjectState
+local function handle(ref)
+    spawnObjectData({
+        data              = ref,
+        callback_function = function(obj)
+            for _, color in pairs(Player.getAvailableColors()) do
+                local hand = Player[color].getHandTransform()
+
+                obj.setRotation(hand.rotation + Vector(0, 180, 0))
+
+                obj.clone({
+                    position = vector.toWorld(Position.KeepInFront:copy(), hand.position, hand.rotation),
+                })
+            end
+
+            obj.destruct()
+        end
+    })
+end
+
+return handle

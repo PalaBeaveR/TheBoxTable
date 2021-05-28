@@ -1,0 +1,39 @@
+local Object = require("Mods.TheBoxTable.constants.Object")
+local Table  = require("BeaverStash.Table")
+
+---@param art tts__ObjectState
+local function handle(art)
+    local BasicBox = --[[---@not nil]] Object.BasicBox:find()
+    local TheStack = --[[---@not nil]] Object.TheStack:find()
+
+    if BasicBox == nil then
+        return broadcastToAll("Basic Box does not exist where it should be. Try again when it's where it should be.")
+    end
+
+    spawnObjectData({
+        data     = (--[[---@type tts__ContainerState ]]art).ContainedObjects[2],
+        position = BasicBox.getPosition() + Vector(0, 2, 0),
+        rotation = BasicBox.getRotation()
+    })
+
+    BasicBox.destruct()
+
+    local TheStackData = --[[---@type tts__ContainerState ]] TheStack.getData()
+
+    for key, box in ipairs(TheStackData.ContainedObjects) do
+        for _, rep in ipairs((--[[---@type tts__ContainerState ]](--[[---@type tts__ContainerState ]]art).ContainedObjects[1]).ContainedObjects) do
+            if box.Nickname == rep.Nickname then
+                TheStackData.ContainedObjects[key] = rep
+                break
+            end
+        end
+    end
+
+    spawnObjectData({
+        data = TheStackData,
+    })
+
+    TheStack.destruct()
+end
+
+return handle

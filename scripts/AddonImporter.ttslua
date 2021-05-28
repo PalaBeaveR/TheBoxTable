@@ -1,0 +1,102 @@
+local Tag         = require("BeaverStash.Tag")
+local Event       = require("BeaverStash.Event")
+local vector      = require("BeaverStash.vector")
+
+---@type table<string, fun(case: tts__ObjectState)>
+local ImportCases = {
+    ["Boxes"]                = require("Mods.TheBoxTable.import_cases.Boxes"),
+    ["Unmarked Boxes"]       = require("Mods.TheBoxTable.import_cases.UnmarkedBoxes"),
+    ["The Stack Cards"]      = require("Mods.TheBoxTable.import_cases.TheStackCards"),
+    ["The Box: Art Edition"] = require("Mods.TheBoxTable.import_cases.TheBoxArtEdition"),
+    ["Turn Reference"]       = require("Mods.TheBoxTable.import_cases.TurnReference"),
+}
+
+---@type tts__Bag
+local Addon
+
+function addonConsumeAnimation()
+    -- TODO: Maybe tweak the settings a bit to make it look nicer
+    local addon    = Addon
+    local consumer = spawnObject({
+        type     = "BlockSquare",
+        position = addon.getPosition():setAt("y", 0),
+        rotation = addon.getRotation() + Vector(0, 90, 0),
+        scale    = Vector(0, 0, 0),
+        sound    = false
+    })
+
+    coroutine.yield(0)
+
+    consumer.getComponent("BoxCollider").set("enabled", false)
+    consumer.setLock(true)
+    consumer.interactable = false
+    consumer.setColorTint(Color.fromHex("#8c6239ff"))
+
+    local curScale     = addon.getBounds().size:setAt("y", 0)
+    local target       = addon.getBounds().size * Vector(1.8, 2.4, 1.8)
+    local targetTarget = addon.getBounds().size * Vector(1.2, 2.4, 1.2)
+
+    while curScale:distance(target) > 0.1 do
+        vector.lerp(target, targetTarget, 0.025)
+        vector.lerp(curScale, target, 0.05)
+        consumer.setScale(curScale)
+
+        coroutine.yield(0)
+    end
+
+    addon.destruct()
+
+    target.y = 0
+
+    while curScale:distance(target) > 0.2 do
+        vector.lerp(curScale, target, 0.15)
+        consumer.setScale(curScale)
+
+        coroutine.yield(0)
+    end
+
+    consumer.destruct()
+
+    return 1
+end
+
+---@param addon tts__Bag
+---@param ply_color tts__PlayerColor
+local function import(addon, ply_color)
+    local addonData    = addon.getData()
+
+    addon.interactable = false
+    addon.setLock(true)
+
+    for k, v in pairs(Player.getAvailableColors()) do
+        addon.removeFromPlayerSelection(v)
+    end
+
+    Addon = addon
+    startLuaCoroutine(Global, "addonConsumeAnimation")
+
+    for _, case in ipairs(addonData.ContainedObjects) do
+        local handler = ImportCases[--[[---@not nil]]case.Nickname]
+        if handler then
+            handler(case)
+        end
+    end
+
+
+end
+
+---@param obj tts__Object
+---@param tag string
+local function addImportButton(obj, tag)
+    if tag ~= "Box Addon" then return end
+
+    obj.addContextMenuItem("Import", function(ply_color)
+        import(--[[---@type tts__Bag]]obj, ply_color)
+    end)
+end
+
+Event.add("onObjectSetupTag", addImportButton)
+
+Tag.add("Box Addon", function(obj)
+    return obj.type == "Bag" and obj.getColorTint():toHex() == "30b22a"
+end)
