@@ -1,4 +1,5 @@
 require("Mods.TheBoxTable.scripts.Roller")
-require("Mods.TheBoxTable.scripts.Setup")
 require("Mods.TheBoxTable.scripts.SnapPoints")
 require("Mods.TheBoxTable.scripts.AddonImporter")
+--require("Mods.TheBoxTable.scripts.Shush") -- TODO: Either complete this or think of a better implementation
+require("Mods.TheBoxTable.scripts.Setup")

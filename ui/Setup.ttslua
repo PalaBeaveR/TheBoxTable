@@ -1,0 +1,60 @@
+local BUI = require("BeaverStash.BUI")
+
+require("BeaverStash.BUITemplates.VerticalLayout")
+require("BeaverStash.BUITemplates.Text")
+require("BeaverStash.BUITemplates.InputField")
+require("BeaverStash.BUITemplates.Button")
+require("BeaverStash.BUITemplates.CloseButton")
+
+local MainPanel = --[[---@type bs__BUIElementSeatManager<bs__BUIVerticalLayout> ]] BUI.createElementSeatManager("BUIVerticalLayout", "SetupPanel")
+MainPanel:executeOnAll(function(el)
+    el:setSize(200, 300)
+    el:setActive(false)
+    el:setExpandHeight(false)
+    el:setPadding(20)
+    el:setSpacing(20)
+    el:setAllowDragging(true)
+    el:setReturnToOriginalPositionWhenReleased(false)
+end)
+MainPanel:enableSeatVisibility()
+
+local CloseButton = --[[---@type bs__BUIElementSeatManager<bs__BUICloseButton> ]] BUI.createElementSeatManager("BUICloseButton", "SetupCloseButton", MainPanel)
+
+local Title       = --[[---@type bs__BUIElementSeatManager<bs__BUIText> ]] BUI.createElementSeatManager("BUIText", "SetupLabel", MainPanel)
+Title:executeOnAll(function(el)
+    el:setText("Setup")
+    el:setMinSize(0, 50)
+    el:setFontSize(40)
+end)
+
+local NumberOfSetupCards = --[[---@type bs__BUIElementSeatManager<bs__BUIInputField> ]] BUI.createElementSeatManager("BUIInputField", "NumberOfSetupCards", MainPanel)
+NumberOfSetupCards:executeOnAll(function(el)
+    el:setMinSize(0, 40)
+    el:setContentType("IntegerNumber")
+    el:setPlaceholderText("Number of cards...")
+end)
+
+local StartSetupButton = --[[---@type bs__BUIElementSeatManager<bs__BUIButton> ]] BUI.createElementSeatManager("BUIButton", "StartSetupButton", MainPanel)
+StartSetupButton:executeOnAll(function(el)
+    el:setMinSize(0, 100)
+    el:setText("Start Setup")
+end)
+
+local ErrorLabel = --[[---@type bs__BUIElementSeatManager<bs__BUIText> ]] BUI.createElementSeatManager("BUIText", "ErrorLabel", MainPanel)
+ErrorLabel:executeOnAll(function(el)
+    el:setText("")
+    el:setTextColor(Color.Red)
+    el:setSize(200, 50)
+    el:setRectAlignment("LowerCenter")
+    el:setIgnoreLayout(true)
+    el:setPivot(0.5, 0)
+end)
+
+return {
+    MainPanel          = MainPanel,
+    CloseButton        = CloseButton,
+    Title              = Title,
+    NumberOfSetupCards = NumberOfSetupCards,
+    StartSetupButton   = StartSetupButton,
+    ErrorLabel         = ErrorLabel
+}
