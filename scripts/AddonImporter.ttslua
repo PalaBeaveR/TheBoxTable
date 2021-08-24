@@ -106,13 +106,12 @@ local function importAddon(self, player)
     AddonImporterUI.ImportPanel:getSeatElement(player.color):setActive(false)
 
     local BasicBox       = --[[---@not nil]] Object.BasicBox:find()
-    local StarterCards   = --[[---@not nil]] Object.StarterCards:find()
+    local StarterCards   = --[[---@not nil]] Object.StarterCards:find() or Object.AlternateStarterCards:find()
     local BoxBox         = --[[---@not nil]] Object.BoxBox:find()
     local TheStack       = --[[---@not nil]] Object.TheStack:find()
     local UnmarkedBoxBox = --[[---@not nil]] Object.UnmarkedBoxBox:find()
 
     -- Existence checks
-    do
         if StarterCards == nil then
             Addons[self.color] = nil
             addon.interactable = true
@@ -147,8 +146,6 @@ local function importAddon(self, player)
             addon.highlightOff()
             return broadcastToAll("Unmarked Box Box does not exist where it should be. Try again when it's where it should be.")
         end
-
-    end
 
     local addonAuthor  = --[[---@type string]] addon.getName():match("(.+)'.*")
 

@@ -3,7 +3,7 @@ local Table  = require("BeaverStash.Table")
 
 ---@param start tts__ObjectState
 local function handle(start)
-    local StarterCards      = --[[---@not nil]] Object.StarterCards:find()
+    local StarterCards = --[[---@not nil]] Object.StarterCards:find() or Object.AlternateStarterCards:find()
 
     local StarterCardAmount = 0
     for k, v in ipairs((--[[---@type tts__ContainerState]]start).ContainedObjects) do
