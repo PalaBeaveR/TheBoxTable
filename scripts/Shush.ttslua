@@ -1,0 +1,100 @@
+-- This script is supposed to protect your items from other players so there cant be accidents(deleting a card, changing a stat)
+-- Currently incomplete
+
+local Event              = require("BeaverStash.Event")
+local Table              = require("BeaverStash.Table")
+local Roller             = require("Mods.TheBoxTable.scripts.Roller")
+
+---@class tbt__Shush
+local Shush              = {}
+
+---@type table<tts__PlayerAction, fun(ply: tts__Player, target: tts__Object)>
+local handleObjectAction = {
+    [Player.Action.Select]    = function(ply, target)
+        target.addToPlayerSelection(ply.color)
+    end,
+    [Player.Action.Delete]    = function(ply, target)
+        target.destruct()
+    end,
+    [Player.Action.Randomize] = function(ply, target)
+        target.randomize(ply.color)
+    end
+}
+
+---@param ply tts__Player
+---@param action tts__PlayerAction
+---@param targets tts__Object[]
+function Shush.fromMyCards(ply, action, targets)
+    if action == Player.Action.Select then return true end
+    local prevent = false
+
+    ---@type tts__Object[]
+    local handle  = {}
+    for _, obj in pairs(targets) do
+        local protect = false
+        for _, zone in ipairs(obj.getZones()) do
+
+            if zone.type == "Hand" then
+                local color = --[[---@type tts__PlayerColor ]] zone.getColorTint():setAt("a", 1):toString()
+                if Player[color].seated and color ~= ply.color then
+                    protect = true
+                    prevent = true
+                    break
+                end
+            end
+        end
+
+        if not protect then
+            table.insert(handle, obj)
+        end
+    end
+
+    if prevent then
+        for _, obj in ipairs(handle) do
+            if handleObjectAction[action] then
+                handleObjectAction[action](ply, obj)
+            end
+        end
+    end
+
+    return not prevent
+end
+--
+-----@param ply tts__Player
+-----@param action tts__PlayerAction
+-----@param targets tts__Object[]
+--function Shush.fromMyRollables(ply, action, targets)
+--    if action == Player.Action.Select then return true end
+--    local prevent = false
+--
+--    ---@type tts__Object[]
+--    local handle  = {}
+--    for _, obj in pairs(targets) do
+--        local protect = false
+--
+--        if obj.type == "Dice" or obj.type == "Coin" then
+--            local rolledBy = Roller.rolledBy(--[[---@type tbt__Rollable ]]obj)
+--            if rolledBy ~= nil and rolledBy ~= ply.color then
+--                protect = true
+--                prevent = true
+--            end
+--        end
+--
+--        if not protect then
+--            table.insert(handle, obj)
+--        end
+--    end
+--
+--    if prevent then
+--        for _, obj in ipairs(handle) do
+--            if handleObjectAction[action] then
+--                handleObjectAction[action](ply, obj)
+--            end
+--        end
+--    end
+--
+--    return not prevent
+--end
+
+Event.add("onPlayerAction", Shush.fromMyCards)
+--Event.add("onPlayerAction", Shush.fromMyRollables)
