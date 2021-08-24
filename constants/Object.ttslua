@@ -11,28 +11,43 @@ Object.BoxTable       = ObjectZone({
     type     = "Board",
 })
 
-Object.BoxBox         = ObjectZone({
+Object.BoxBox                       = ObjectZone({
     position = Position.BoxBox + Vector(0, Size.BoxBox.y / 2, 0),
     type     = "Bag",
 })
 
-Object.TheStack       = ObjectZone({
+Object.TheStack                     = ObjectZone({
     position = Position.TheStack + Vector(0, Size.TheStack.y / 2, 0),
     type     = "Bag",
 })
 
-Object.UnmarkedBoxBox = ObjectZone({
+Object.UnmarkedBoxBox               = ObjectZone({
     position = Position.UnmarkedBoxBox + Vector(0, Size.UnmarkedBoxBox.y / 2, 0),
     type     = "Bag",
 })
 
-Object.StarterCards   = ObjectZone({
+Object.StarterCards                 = ObjectZone({
     position = Size.MarginedAndPadded.Card * Vector(0, 0, 2),
     type     = "Deck",
 })
 
-Object.BasicBox       = ObjectZone({
+Object.AlternateStarterCards        = ObjectZone({
+    position = Position.AlternateStarterCards,
+    type     = "Deck",
+})
+
+Object.AlternateStarterCardsCounter = ObjectZone({
+    position = Position.AlternateStarterCardsCounter,
+    type     = "Counter",
+})
+
+Object.BasicBox                     = ObjectZone({
     position = Position.BasicBox,
+    type     = "Deck",
+})
+
+Object.StarterCards                 = ObjectZone({
+    position = Position.StarterCards,
     type     = "Deck",
 })
 

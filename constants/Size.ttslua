@@ -10,6 +10,8 @@ Size.Card90            = Vector(2.187639, 0.036777, 3.062551)
 
 Size.Box               = Vector(2, 2.548113, 3)
 
+Size.OddBox            = Vector(2, 0.4, 3)
+
 Size.UnmarkedBoxBox    = Size.Box * 1.9
 Size.BoxBox            = Size.Box * 2.15
 Size.TheStack          = Size.Box * 1.9
