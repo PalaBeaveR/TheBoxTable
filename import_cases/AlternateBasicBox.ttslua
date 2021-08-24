@@ -1,0 +1,17 @@
+local Object = require("Mods.TheBoxTable.constants.Object")
+local Table  = require("BeaverStash.Table")
+
+---@param abb tts__ObjectState
+local function handle(abb)
+    local BasicBox = --[[---@not nil]] Object.BasicBox:find()
+
+    spawnObjectData({
+        data     = (--[[---@type tts__ContainerState ]]abb).ContainedObjects[1],
+        position = BasicBox.getPosition() + Vector(0, 2, 0),
+        rotation = BasicBox.getRotation()
+    })
+
+    BasicBox.destruct()
+end
+
+return handle

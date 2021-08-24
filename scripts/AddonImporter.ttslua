@@ -3,16 +3,22 @@ local Event           = require("BeaverStash.Event")
 local vector          = require("BeaverStash.vector")
 local AddonImporterUI = require("Mods.TheBoxTable.ui.AddonImporter")
 local GameState       = require("Mods.TheBoxTable.scripts.GameState")
+local Object          = require("Mods.TheBoxTable.constants.Object")
 local Table           = require("BeaverStash.Table")
 
 ---@type table<string, fun(case: tts__ObjectState)>
 local ImportCases     = {
-    ["Boxes"]                = require("Mods.TheBoxTable.import_cases.Boxes"),
-    ["Unmarked Boxes"]       = require("Mods.TheBoxTable.import_cases.UnmarkedBoxes"),
-    ["The Stack Cards"]      = require("Mods.TheBoxTable.import_cases.TheStackCards"),
-    ["The Stack Boxes"]      = require("Mods.TheBoxTable.import_cases.TheStackCards"),
-    ["The Box: Art Edition"] = require("Mods.TheBoxTable.import_cases.TheBoxArtEdition"),
-    ["Turn Reference"]       = require("Mods.TheBoxTable.import_cases.TurnReference"),
+    ["Boxes"]                        = require("Mods.TheBoxTable.import_cases.Boxes"),
+    ["Unmarked Boxes"]               = require("Mods.TheBoxTable.import_cases.UnmarkedBoxes"),
+    ["The Stack Cards"]              = require("Mods.TheBoxTable.import_cases.TheStackCards"),
+    ["The Stack Boxes"]              = require("Mods.TheBoxTable.import_cases.TheStackCards"),
+    ["The Box: Art Edition"]         = require("Mods.TheBoxTable.import_cases.TheBoxArtEdition"),
+    ["Turn Reference"]               = require("Mods.TheBoxTable.import_cases.TurnReference"),
+    ["Starting Info Cards"]          = require("Mods.TheBoxTable.import_cases.StartingInfoCards"),
+    ["Starter Cards"]                = require("Mods.TheBoxTable.import_cases.StarterCards"),
+    ["Odd Boxes"]                    = require("Mods.TheBoxTable.import_cases.OddBoxes"),
+    ["Alternate Basic Box"]          = require("Mods.TheBoxTable.import_cases.AlternateBasicBox"),
+    ["Alternate Starter Card rules"] = require("Mods.TheBoxTable.import_cases.AlternateStarterCardrules"),
 }
 
 ---@type table<tts__PlayerColor, tts__Bag>
@@ -82,9 +88,13 @@ local function openImportMenu(ply_color)
 
     for _, case in ipairs(addon.getObjects()) do
         local toggle = AddonImporterUI.ImportToggles[_]:getSeatElement(ply_color)
-        toggle:setAttribute("text", --[[---@not nil ]]case.nickname)
-        if ImportCases[--[[---@not nil]]case.nickname] then
-            toggle:setActive(true)
+        toggle:setText(--[[---@not nil ]]case.nickname)
+        toggle:setActive(true)
+        toggle:setInteractable(true)
+        if not ImportCases[--[[---@not nil]]case.nickname] then
+            toggle:setInteractable(false)
+            toggle:setIsOn(false)
+            toggle:setActive(false)
         end
     end
 end
@@ -95,11 +105,52 @@ local function importAddon(self, player)
     local addon = Addons[self.color]
     AddonImporterUI.ImportPanel:getSeatElement(player.color):setActive(false)
 
-    local addonAuthor = --[[---@type string]] addon.getName():match("(.+)'.*")
-    if Table.find(GameState.ImportedAddons, addonAuthor) then
-        printToColor("An addon from this author has already been imported.", ply_color)
-        return
+    local BasicBox       = --[[---@not nil]] Object.BasicBox:find()
+    local StarterCards   = --[[---@not nil]] Object.StarterCards:find()
+    local BoxBox         = --[[---@not nil]] Object.BoxBox:find()
+    local TheStack       = --[[---@not nil]] Object.TheStack:find()
+    local UnmarkedBoxBox = --[[---@not nil]] Object.UnmarkedBoxBox:find()
+
+    -- Existence checks
+    do
+        if StarterCards == nil then
+            Addons[self.color] = nil
+            addon.interactable = true
+            addon.highlightOff()
+            return broadcastToAll("Starter Cards do not exist where it should be. Try again when it's where it should be.")
+        end
+
+        if BasicBox == nil then
+            Addons[self.color] = nil
+            addon.interactable = true
+            addon.highlightOff()
+            return broadcastToAll("Basic Box does not exist where it should be. Try again when it's where it should be.")
+        end
+
+        if BoxBox == nil then
+            Addons[self.color] = nil
+            addon.interactable = true
+            addon.highlightOff()
+            return broadcastToAll("Box Box does not exist where it should be. Try again when it's where it should be.")
+        end
+
+        if TheStack == nil then
+            Addons[self.color] = nil
+            addon.interactable = true
+            addon.highlightOff()
+            return broadcastToAll("The Stack does not exist where it should be. Try again when it's where it should be.")
+        end
+
+        if UnmarkedBoxBox == nil then
+            Addons[self.color] = nil
+            addon.interactable = true
+            addon.highlightOff()
+            return broadcastToAll("Unmarked Box Box does not exist where it should be. Try again when it's where it should be.")
+        end
+
     end
+
+    local addonAuthor  = --[[---@type string]] addon.getName():match("(.+)'.*")
 
     local addonData    = addon.getData()
 
@@ -132,7 +183,7 @@ local function importAddon(self, player)
     AddonImporterUI.ImportAddonTitle:executeOnAll(function(el)
         local titleAddonAuthor = --[[---@type string]] el:getText():match("(.+)'.*")
 
-        if titleAddonAuthor == addonAuthor then
+        if el.color ~= self.color and titleAddonAuthor == addonAuthor then
             AddonImporterUI.ImportCancelButton:getSeatElement(el.color):onClick(Player[el.color], "-1")
         end
     end)
@@ -145,6 +196,8 @@ end)
 ---@param self bs__BUIButton
 local function closeImportMenu(self)
     AddonImporterUI.ImportPanel:getSeatElement(self.color):setActive(false)
+    Addons[self.color].interactable = true
+    Addons[self.color].highlightOff()
     Addons[self.color] = nil
 end
 
@@ -173,6 +226,8 @@ local function addImportButton(bag, tag)
             return
         end
         Addons[ply_color] = bag
+        bag.highlightOn(ply_color)
+        bag.interactable = false
         openImportMenu(ply_color)
     end)
 end

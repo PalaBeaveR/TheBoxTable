@@ -5,10 +5,6 @@ local Table  = require("BeaverStash.Table")
 local function handle(sCards)
     local TheStack = --[[---@not nil]] Object.TheStack:find()
 
-    if TheStack == nil then
-        return broadcastToAll("Unmarked Box Box does not exist where it should be. Try again when it's where it should be.")
-    end
-
     local TheStackData = --[[---@type tts__ContainerState ]] TheStack.getData()
 
     Table.append(TheStackData.ContainedObjects, (--[[---@type tts__ContainerState ]]sCards).ContainedObjects)

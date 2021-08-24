@@ -1,0 +1,38 @@
+local Object    = require("Mods.TheBoxTable.constants.Object")
+local Size      = require("Mods.TheBoxTable.constants.Size")
+local Position  = require("Mods.TheBoxTable.constants.Position")
+local GameState = require("Mods.TheBoxTable.scripts.GameState")
+local Table     = require("BeaverStash.Table")
+
+---@param ascr tts__ObjectState
+local function handle(ascr)
+    local StarterCards = --[[---@not nil]] Object.StarterCards:find()
+
+    StarterCards.setPosition(Position.AlternateStarterCards + Vector(0, 1, 0))
+
+    spawnObjectData({ -- Info card
+        data     = (--[[---@type tts__ContainerState ]]ascr).ContainedObjects[2],
+        position = StarterCards.getPosition() - Vector(Size.MarginedAndPadded.Card.x, 0, 0),
+        rotation = StarterCards.getRotation()
+    })
+
+    spawnObjectData({ -- Additional Starter Cards
+        data     = (--[[---@type tts__ContainerState ]]ascr).ContainedObjects[1],
+        position = StarterCards.getPosition() + Vector(0, 2, 0),
+        rotation = StarterCards.getRotation()
+    })
+
+    spawnObject({ -- Counter
+        type              = "Counter",
+        position          = StarterCards.getPosition() + Vector(Size.MarginedAndPadded.Card.x, 0, 0),
+        rotation          = StarterCards.getRotation() + Vector(0, -180, -180),
+        callback_function = function(obj)
+            obj.setName("Starter Cards Left")
+            obj.setColorTint(Color.fromHex("#8c6239ff"))
+        end
+    })
+
+    GameState.StarterCardRules = "Alternate"
+end
+
+return handle

@@ -5,10 +5,6 @@ local Table  = require("BeaverStash.Table")
 local function handle(boxes)
     local BoxBox = --[[---@not nil]] Object.BoxBox:find()
 
-    if BoxBox == nil then
-        return broadcastToAll("Box Box does not exist where it should be. Try again when it's where it should be.")
-    end
-
     local BoxBoxData = --[[---@type tts__ContainerState ]] BoxBox.getData()
 
     Table.append(BoxBoxData.ContainedObjects, (--[[---@type tts__ContainerState ]]boxes).ContainedObjects)

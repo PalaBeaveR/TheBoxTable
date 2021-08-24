@@ -1,0 +1,31 @@
+local Object          = require("Mods.TheBoxTable.constants.Object")
+local Size            = require("Mods.TheBoxTable.constants.Size")
+local Table           = require("BeaverStash.Table")
+
+local InfoCardsAmount = 0
+
+---@param info tts__ObjectState
+local function handle(info)
+    for k, v in ipairs((--[[---@type tts__ContainerState ]]info).ContainedObjects) do
+        spawnObjectData({
+            data     = v,
+            position = Vector(
+                    Size.MarginedAndPadded.Card.x * 3,
+                    1,
+                    math.ceil(InfoCardsAmount / 2)
+                            *
+                            (
+                                    InfoCardsAmount % 2 == 1
+                                            and
+                                            Size.MarginedAndPadded.Card.z
+                                            or
+                                            -Size.MarginedAndPadded.Card.z
+                            )
+            ),
+            rotation = Vector(0, 90, 0)
+        })
+        InfoCardsAmount = InfoCardsAmount + 1
+    end
+end
+
+return handle

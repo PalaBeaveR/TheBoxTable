@@ -1,0 +1,30 @@
+local Object       = require("Mods.TheBoxTable.constants.Object")
+local Size         = require("Mods.TheBoxTable.constants.Size")
+local Table        = require("BeaverStash.Table")
+
+local OddBoxAmount = 0
+---@param odd tts__ObjectState
+local function handle(odd)
+    local StartPos = Vector(60, 1, -12)
+
+    for k, v in ipairs((--[[---@type tts__ContainerState]]odd).ContainedObjects) do
+        if k % 2 == 1 then
+            spawnObjectData(
+                    {
+                        data     = v,
+                        position = StartPos
+                                -
+                                Vector(
+                                        Size.Margined.OddBox.z * math.floor(OddBoxAmount / 10),
+                                        0,
+                                        Size.Margined.OddBox.x * (OddBoxAmount % 10)
+                                ),
+                        rotation = Vector(0, 0, 0)
+                    }
+            )
+            OddBoxAmount = OddBoxAmount + 1
+        end
+    end
+end
+
+return handle

@@ -6,10 +6,6 @@ local function handle(art)
     local BasicBox = --[[---@not nil]] Object.BasicBox:find()
     local TheStack = --[[---@not nil]] Object.TheStack:find()
 
-    if BasicBox == nil then
-        return broadcastToAll("Basic Box does not exist where it should be. Try again when it's where it should be.")
-    end
-
     spawnObjectData({
         data     = (--[[---@type tts__ContainerState ]]art).ContainedObjects[2],
         position = BasicBox.getPosition() + Vector(0, 2, 0),
