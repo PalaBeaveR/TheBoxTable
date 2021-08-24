@@ -1,0 +1,8 @@
+-- TODO: Implement saving
+---@class tbt__GameState
+---@field ImportedAddons string[]
+local GameState = {
+    ImportedAddons = {}
+}
+
+return GameState
