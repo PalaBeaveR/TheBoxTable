@@ -1,8 +1,12 @@
 -- TODO: Implement saving
 ---@class tbt__GameState
 ---@field ImportedAddons string[]
+---@field isGameSetup boolean
+---@field StarterCardRules "Normal" | "Alternate"
 local GameState = {
-    ImportedAddons = {}
+    ImportedAddons   = {},
+    isGameSetup      = false,
+    StarterCardRules = "Normal"
 }
 
 return GameState
