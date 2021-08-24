@@ -1,0 +1,66 @@
+local BUI = require("BeaverStash.BUI")
+
+require("BeaverStash.BUITemplates.VerticalLayout")
+require("BeaverStash.BUITemplates.Text")
+require("BeaverStash.BUITemplates.Toggle")
+require("BeaverStash.BUITemplates.Button")
+
+-- DONE: Make this be available for every promoted player,
+-- have a warning if someone is trying to import an already imported addon,
+-- and only allow one import popup for every addon box
+local ImportPanel = --[[---@type bs__BUIElementSeatManager<bs__BUIVerticalLayout> ]] BUI.createElementSeatManager("BUIVerticalLayout", "ImportPanel")
+ImportPanel:executeOnAll(function(el)
+    el:setContentSizeFitter("vertical")
+    el:setVisibility(el.color)
+    el:setExpandHeight(false)
+    el:setActive(false)
+    el:setSize(200, 0)
+    el:setPadding(10, 10, 0, 10)
+    el:setAllowDragging(true)
+    el:setReturnToOriginalPositionWhenReleased(false)
+end)
+
+local ImportAddonTitle = --[[---@type bs__BUIElementSeatManager<bs__BUIText> ]] BUI.createElementSeatManager("BUIText", "ImportAddonTitle", ImportPanel)
+ImportAddonTitle:executeOnAll(function(el)
+    el:setMinSize(0, 50)
+    el:setText("Placeholder")
+end)
+
+---@type bs__BUIElementSeatManager<bs__BUIToggle>[]
+local ImportToggles = {}
+
+for i = 1, 10 do
+    ImportToggles[i] = --[[---@type bs__BUIElementSeatManager<bs__BUIToggle> ]] BUI.createElementSeatManager("BUIToggle", "ImportToggle" .. i, ImportPanel)
+    ImportToggles[i]:executeOnAll(function(el)
+        el:setMinSize(0, 40)
+    end)
+end
+
+local ImportDisclaimer = --[[---@type bs__BUIElementSeatManager<bs__BUIText> ]] BUI.createElementSeatManager("BUIText", "ImportDisclaimer", ImportPanel)
+ImportDisclaimer:executeOnAll(function(el)
+    el:setMinSize(0, 30)
+    el:setFontSize(14)
+    el:setTextColor(Color.Red)
+    el:setText("*Anything not listed here is not currently importable")
+end)
+
+local ImportButton = --[[---@type bs__BUIElementSeatManager<bs__BUIButton> ]] BUI.createElementSeatManager("BUIButton", "ImportButton", ImportPanel)
+ImportButton:executeOnAll(function(el)
+    el:setMinSize(0, 60)
+    el:setText("Import")
+end)
+
+local ImportCancelButton = --[[---@type bs__BUIElementSeatManager<bs__BUIButton> ]] BUI.createElementSeatManager("BUIButton", "ImportCancelButton", ImportPanel)
+ImportCancelButton:executeOnAll(function(el)
+    el:setMinSize(0, 60)
+    el:setText("Cancel")
+end)
+
+return {
+    ImportPanel        = ImportPanel,
+    ImportAddonTitle   = ImportAddonTitle,
+    ImportToggles      = ImportToggles,
+    ImportDisclaimer   = ImportDisclaimer,
+    ImportButton       = ImportButton,
+    ImportCancelButton = ImportCancelButton
+}

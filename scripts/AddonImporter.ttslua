@@ -1,22 +1,29 @@
-local Tag         = require("BeaverStash.Tag")
-local Event       = require("BeaverStash.Event")
-local vector      = require("BeaverStash.vector")
+local Tag             = require("BeaverStash.Tag")
+local Event           = require("BeaverStash.Event")
+local vector          = require("BeaverStash.vector")
+local AddonImporterUI = require("Mods.TheBoxTable.ui.AddonImporter")
+local GameState       = require("Mods.TheBoxTable.scripts.GameState")
+local Table           = require("BeaverStash.Table")
 
 ---@type table<string, fun(case: tts__ObjectState)>
-local ImportCases = {
+local ImportCases     = {
     ["Boxes"]                = require("Mods.TheBoxTable.import_cases.Boxes"),
     ["Unmarked Boxes"]       = require("Mods.TheBoxTable.import_cases.UnmarkedBoxes"),
     ["The Stack Cards"]      = require("Mods.TheBoxTable.import_cases.TheStackCards"),
+    ["The Stack Boxes"]      = require("Mods.TheBoxTable.import_cases.TheStackCards"),
     ["The Box: Art Edition"] = require("Mods.TheBoxTable.import_cases.TheBoxArtEdition"),
     ["Turn Reference"]       = require("Mods.TheBoxTable.import_cases.TurnReference"),
 }
 
+---@type table<tts__PlayerColor, tts__Bag>
+local Addons          = {}
+
 ---@type tts__Bag
-local Addon
+local AddonToImport
 
 function addonConsumeAnimation()
     -- TODO: Maybe tweak the settings a bit to make it look nicer
-    local addon    = Addon
+    local addon    = AddonToImport
     local consumer = spawnObject({
         type     = "BlockSquare",
         position = addon.getPosition():setAt("y", 0),
@@ -60,9 +67,40 @@ function addonConsumeAnimation()
     return 1
 end
 
----@param addon tts__Bag
 ---@param ply_color tts__PlayerColor
-local function import(addon, ply_color)
+local function openImportMenu(ply_color)
+    local addon = Addons[ply_color]
+
+    AddonImporterUI.ImportPanel:getSeatElement(ply_color):setActive(true)
+    AddonImporterUI.ImportAddonTitle:getSeatElement(ply_color):setText(addon.getName())
+
+    for k, v in ipairs(AddonImporterUI.ImportToggles) do
+        local toggle = v:getSeatElement(ply_color)
+        toggle:setActive(false)
+        toggle:setIsOn(true)
+    end
+
+    for _, case in ipairs(addon.getObjects()) do
+        local toggle = AddonImporterUI.ImportToggles[_]:getSeatElement(ply_color)
+        toggle:setAttribute("text", --[[---@not nil ]]case.nickname)
+        if ImportCases[--[[---@not nil]]case.nickname] then
+            toggle:setActive(true)
+        end
+    end
+end
+
+---@param self bs__BUIButton
+---@param player tts__Player
+local function importAddon(self, player)
+    local addon = Addons[self.color]
+    AddonImporterUI.ImportPanel:getSeatElement(player.color):setActive(false)
+
+    local addonAuthor = --[[---@type string]] addon.getName():match("(.+)'.*")
+    if Table.find(GameState.ImportedAddons, addonAuthor) then
+        printToColor("An addon from this author has already been imported.", ply_color)
+        return
+    end
+
     local addonData    = addon.getData()
 
     addon.interactable = false
@@ -72,26 +110,70 @@ local function import(addon, ply_color)
         addon.removeFromPlayerSelection(v)
     end
 
-    Addon = addon
+    AddonToImport = addon
+
     startLuaCoroutine(Global, "addonConsumeAnimation")
 
     for _, case in ipairs(addonData.ContainedObjects) do
-        local handler = ImportCases[--[[---@not nil]]case.Nickname]
-        if handler then
-            handler(case)
+        if AddonImporterUI.ImportToggles[_]:getSeatElement(player.color):getIsOn() then
+            local handler = ImportCases[--[[---@not nil]]case.Nickname]
+            if handler then
+                Wait.frames(function() handler(case) end, _)
+                -- replacing an object takes a frame for it to initialize again,
+                -- so i wait a frame here to make sure it will exist by the time other handlers would need it
+            end
         end
     end
 
+    printToAll(("[%s]%s[-] has imported \"%s\"."):format(Color.fromString(self.color):toHex(), self.color, addon.getName()))
 
+    Addons[self.color] = nil
+    table.insert(GameState.ImportedAddons, addonAuthor)
+    AddonImporterUI.ImportAddonTitle:executeOnAll(function(el)
+        local titleAddonAuthor = --[[---@type string]] el:getText():match("(.+)'.*")
+
+        if titleAddonAuthor == addonAuthor then
+            AddonImporterUI.ImportCancelButton:getSeatElement(el.color):onClick(Player[el.color], "-1")
+        end
+    end)
 end
 
----@param obj tts__Object
+AddonImporterUI.ImportButton:executeOnAll(function(el)
+    el.onClick = importAddon
+end)
+
+---@param self bs__BUIButton
+local function closeImportMenu(self)
+    AddonImporterUI.ImportPanel:getSeatElement(self.color):setActive(false)
+    Addons[self.color] = nil
+end
+
+AddonImporterUI.ImportCancelButton:executeOnAll(function(el)
+    el.onClick = closeImportMenu
+end)
+
+---@param bag tts__Bag
 ---@param tag string
-local function addImportButton(obj, tag)
+local function addImportButton(bag, tag)
     if tag ~= "Box Addon" then return end
 
-    obj.addContextMenuItem("Import", function(ply_color)
-        import(--[[---@type tts__Bag]]obj, ply_color)
+    bag.addContextMenuItem("Import", function(ply_color)
+        if not Player[ply_color].promoted and not Player[ply_color].host then
+            printToColor("Only the promoted players and the host is allowed to import addons.", ply_color)
+            return
+        end
+        local addonAuthor = bag.getName():match("(.+)'.*")
+        if Table.find(GameState.ImportedAddons, addonAuthor) then
+            printToColor("An addon from this author has already been imported.", ply_color)
+            return
+        end
+        local beingImportedBy = Table.find(Addons, bag)
+        if beingImportedBy then
+            printToColor(beingImportedBy .. " is already importing this addon.", ply_color)
+            return
+        end
+        Addons[ply_color] = bag
+        openImportMenu(ply_color)
     end)
 end
 
