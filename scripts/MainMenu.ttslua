@@ -1,0 +1,31 @@
+local BUI = require("BeaverStash.BUI")
+require("BeaverStash.BUITemplates.Button")
+
+local MainMenuUI  = require("Mods.TheBoxTable.ui.MainMenu")
+
+local MenuButtons = {}
+
+---@class tbt__MainMenu
+local MainMenu    = {}
+
+function MainMenu.addButton(text, panel)
+    local button = --[[---@type bs__BUIElementSeatManager<bs__BUIButton> ]] BUI.createElementSeatManager("BUIButton", "PlayerMenuSetupButton", MainMenuUI.MainPanel)
+    table.insert(MenuButtons, button)
+
+    local function showPanel(self)
+        if panel.isSeatManager then
+            panel:getSeatElement(self.color):setActive(true)
+        else
+            panel:setActive(true)
+        end
+    end
+
+    button:executeOnAll(function(el)
+        el:setText("Setup")
+        el:setMinSize(0, 60)
+
+        el.onClick = showPanel
+    end)
+end
+
+return MainMenu
