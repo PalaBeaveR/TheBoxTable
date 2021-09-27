@@ -77,17 +77,17 @@ end
 local function openImportMenu(ply_color)
     local addon = Addons[ply_color]
 
-    AddonImporterUI.ImportPanel:getSeatElement(ply_color):setActive(true)
-    AddonImporterUI.ImportAddonTitle:getSeatElement(ply_color):setText(addon.getName())
+    AddonImporterUI.Window:getElement(ply_color):setActive(true)
+    AddonImporterUI.AddonTitle:getElement(ply_color):setText(addon.getName())
 
-    for k, v in ipairs(AddonImporterUI.ImportToggles) do
-        local toggle = v:getSeatElement(ply_color)
+    for k, v in ipairs(AddonImporterUI.Toggles) do
+        local toggle = v:getElement(ply_color)
         toggle:setActive(false)
         toggle:setIsOn(true)
     end
 
-    for _, case in ipairs(addon.getObjects()) do
-        local toggle = AddonImporterUI.ImportToggles[_]:getSeatElement(ply_color)
+    for i, case in ipairs(addon.getObjects()) do
+        local toggle = AddonImporterUI.Toggles[i]:getElement(ply_color)
         toggle:setText(--[[---@not nil ]]case.nickname)
         toggle:setActive(true)
         toggle:setInteractable(true)
@@ -103,7 +103,7 @@ end
 ---@param player tts__Player
 local function importAddon(self, player)
     local addon = Addons[self.color]
-    AddonImporterUI.ImportPanel:getSeatElement(player.color):setActive(false)
+    AddonImporterUI.Window:getElement(player.color):setActive(false)
 
     local BasicBox       = --[[---@not nil]] Object.BasicBox:find()
     local StarterCards   = --[[---@not nil]] Object.StarterCards:find() or Object.AlternateStarterCards:find()
@@ -112,40 +112,40 @@ local function importAddon(self, player)
     local UnmarkedBoxBox = --[[---@not nil]] Object.UnmarkedBoxBox:find()
 
     -- Existence checks
-        if StarterCards == nil then
-            Addons[self.color] = nil
-            addon.interactable = true
-            addon.highlightOff()
-            return broadcastToAll("Starter Cards do not exist where it should be. Try again when it's where it should be.")
-        end
+    if StarterCards == nil then
+        Addons[self.color] = nil
+        addon.interactable = true
+        addon.highlightOff()
+        return broadcastToAll("Starter Cards do not exist where it should be. Try again when it's where it should be.")
+    end
 
-        if BasicBox == nil then
-            Addons[self.color] = nil
-            addon.interactable = true
-            addon.highlightOff()
-            return broadcastToAll("Basic Box does not exist where it should be. Try again when it's where it should be.")
-        end
+    if BasicBox == nil then
+        Addons[self.color] = nil
+        addon.interactable = true
+        addon.highlightOff()
+        return broadcastToAll("Basic Box does not exist where it should be. Try again when it's where it should be.")
+    end
 
-        if BoxBox == nil then
-            Addons[self.color] = nil
-            addon.interactable = true
-            addon.highlightOff()
-            return broadcastToAll("Box Box does not exist where it should be. Try again when it's where it should be.")
-        end
+    if BoxBox == nil then
+        Addons[self.color] = nil
+        addon.interactable = true
+        addon.highlightOff()
+        return broadcastToAll("Box Box does not exist where it should be. Try again when it's where it should be.")
+    end
 
-        if TheStack == nil then
-            Addons[self.color] = nil
-            addon.interactable = true
-            addon.highlightOff()
-            return broadcastToAll("The Stack does not exist where it should be. Try again when it's where it should be.")
-        end
+    if TheStack == nil then
+        Addons[self.color] = nil
+        addon.interactable = true
+        addon.highlightOff()
+        return broadcastToAll("The Stack does not exist where it should be. Try again when it's where it should be.")
+    end
 
-        if UnmarkedBoxBox == nil then
-            Addons[self.color] = nil
-            addon.interactable = true
-            addon.highlightOff()
-            return broadcastToAll("Unmarked Box Box does not exist where it should be. Try again when it's where it should be.")
-        end
+    if UnmarkedBoxBox == nil then
+        Addons[self.color] = nil
+        addon.interactable = true
+        addon.highlightOff()
+        return broadcastToAll("Unmarked Box Box does not exist where it should be. Try again when it's where it should be.")
+    end
 
     local addonAuthor  = --[[---@type string]] addon.getName():match("(.+)'.*")
 
@@ -162,11 +162,11 @@ local function importAddon(self, player)
 
     startLuaCoroutine(Global, "addonConsumeAnimation")
 
-    for _, case in ipairs(addonData.ContainedObjects) do
-        if AddonImporterUI.ImportToggles[_]:getSeatElement(player.color):getIsOn() then
+    for i, case in ipairs(addonData.ContainedObjects) do
+        if AddonImporterUI.Toggles[i]:getElement(player.color):getIsOn() then
             local handler = ImportCases[--[[---@not nil]]case.Nickname]
             if handler then
-                Wait.frames(function() handler(case) end, _)
+                Wait.frames(function() handler(case) end, i)
                 -- replacing an object takes a frame for it to initialize again,
                 -- so i wait a frame here to make sure it will exist by the time other handlers would need it
             end
@@ -177,11 +177,11 @@ local function importAddon(self, player)
 
     Addons[self.color] = nil
     table.insert(GameState.ImportedAddons, addonAuthor)
-    AddonImporterUI.ImportAddonTitle:executeOnAll(function(el)
+    AddonImporterUI.AddonTitle:executeOnAll(function(el)
         local titleAddonAuthor = --[[---@type string]] el:getText():match("(.+)'.*")
 
         if el.color ~= self.color and titleAddonAuthor == addonAuthor then
-            AddonImporterUI.ImportCancelButton:getSeatElement(el.color):onClick(Player[el.color], "-1")
+            AddonImporterUI.ImportCancelButton:getElement(el.color):onClick(Player[el.color], "-1")
         end
     end)
 end
@@ -192,7 +192,7 @@ end)
 
 ---@param self bs__BUIButton
 local function closeImportMenu(self)
-    AddonImporterUI.ImportPanel:getSeatElement(self.color):setActive(false)
+    AddonImporterUI.Window:getElement(self.color):setActive(false)
     Addons[self.color].interactable = true
     Addons[self.color].highlightOff()
     Addons[self.color] = nil
@@ -201,6 +201,8 @@ end
 AddonImporterUI.ImportCancelButton:executeOnAll(function(el)
     el.onClick = closeImportMenu
 end)
+
+--- # Pog
 
 ---@param bag tts__Bag
 ---@param tag string

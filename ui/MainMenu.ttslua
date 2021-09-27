@@ -1,50 +1,28 @@
 local BUI = require("BeaverStash.BUI")
 
-require("BeaverStash.BUITemplates.VerticalLayout")
-require("BeaverStash.BUITemplates.Text")
-require("BeaverStash.BUITemplates.CloseButton")
+require("BeaverStash.BUI.Templates.Window")
+require("BeaverStash.BUI.Templates.Text")
 
-local MainPanel = --[[---@type bs__BUIElementSeatManager<bs__BUIVerticalLayout> ]] BUI.createElementSeatManager("BUIVerticalLayout", "PlayerMenu")
-MainPanel:executeOnAll(function(el)
+local Window = BUI.createElementSeatManager("BUIWindow", "PlayerMenu")
+Window:executeOnAll(function(el)
     el:setActive(false)
     el:setSize(200, 0)
     el:setContentSizeFitter("vertical")
-    el:setExpandHeight(false)
+    el:setChildForceExpandHeight(false)
     el:setPadding(10, 10, 0, 10)
-    el:setSpacing(0, 5)
+    el:setSpacing(5)
     el:setAllowDragging(true)
     el:setReturnToOriginalPositionWhenReleased(false)
+    el:setVisibility({ el.color })
 end)
-MainPanel:enableSeatVisibility()
 
-local CloseButton = --[[---@type bs__BUIElementSeatManager<bs__BUICloseButton> ]] BUI.createElementSeatManager("BUICloseButton", "MainMenuCloseButton", MainPanel)
-
-local Title       = --[[---@type bs__BUIElementSeatManager<bs__BUIText> ]] BUI.createElementSeatManager("BUIText", "PlayerMenuTitle", MainPanel)
+local Title = --[[---@type bs__BUIElementSeatManager<bs__BUIText> ]] BUI.createElementSeatManager("BUIText", "PlayerMenuTitle", Window)
 Title:executeOnAll(function(el)
     el:setText("Menu")
     el:setMinSize(0, 50)
 end)
 
-local function toggleMenu(el)
-    local seatEl = MainPanel:getSeatElement(el.color)
-    seatEl:setActive(not seatEl:getActive())
-end
-
-local ShowButton = --[[---@type bs__BUIElementSeatManager<bs__BUIButton> ]] BUI.createElementSeatManager("BUIButton", "ShowPlayerMenuButton")
-ShowButton:executeOnAll(function(el)
-    el:setRectAlignment("MiddleRight")
-    el:setSize(200, 50)
-    el:setText("Menu")
-    el:setVisibility(el.color)
-
-    el.onClick = toggleMenu
-end)
-
 return {
-    MainPanel   = MainPanel,
-    CloseButton = CloseButton,
-    Title       = Title,
-    ShowButton  = ShowButton
+    Window = Window,
+    Title  = Title
 }
-
-

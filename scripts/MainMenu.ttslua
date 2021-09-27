@@ -1,5 +1,5 @@
 local BUI = require("BeaverStash.BUI")
-require("BeaverStash.BUITemplates.Button")
+require("BeaverStash.BUI.Templates.Button")
 
 local MainMenuUI  = require("Mods.TheBoxTable.ui.MainMenu")
 
@@ -9,12 +9,12 @@ local MenuButtons = {}
 local MainMenu    = {}
 
 function MainMenu.addButton(text, panel)
-    local button = --[[---@type bs__BUIElementSeatManager<bs__BUIButton> ]] BUI.createElementSeatManager("BUIButton", "PlayerMenuSetupButton", MainMenuUI.MainPanel)
+    local button = BUI.createElementSeatManager("BUIButton", "PlayerMenuSetupButton", MainMenuUI.Window)
     table.insert(MenuButtons, button)
 
     local function showPanel(self)
-        if panel.isSeatManager then
-            panel:getSeatElement(self.color):setActive(true)
+        if panel.__isElementSeatManager then
+            panel:getElement(self.color):setActive(true)
         else
             panel:setActive(true)
         end
@@ -27,5 +27,9 @@ function MainMenu.addButton(text, panel)
         el.onClick = showPanel
     end)
 end
+
+addHotkey("Open Menu", function(plyColor, object, pointer, isKeyUp)
+    local plyMenu = MainMenuUI.Window:getElement(plyColor):setActive(true)
+end)
 
 return MainMenu

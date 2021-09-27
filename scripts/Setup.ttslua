@@ -6,7 +6,7 @@ local BUI       = require("BeaverStash.BUI")
 
 local MainMenu  = require("Mods.TheBoxTable.scripts.MainMenu")
 local SetupUI   = require("Mods.TheBoxTable.ui.Setup")
-MainMenu.addButton("Setup", SetupUI.MainPanel)
+MainMenu.addButton("Setup", SetupUI.Window)
 
 GameState.isGameSetup = false
 
@@ -15,9 +15,9 @@ GameState.isGameSetup = false
 ---@param btnCode "3" | "2" | "1" | "-1" | "-2" | "-3"
 local function runSetup(btn, player, btnCode)
     if GameState.isGameSetup then return end
-    local coloredErrorLabel = SetupUI.ErrorLabel:getSeatElement(btn.color)
+    local coloredErrorLabel = SetupUI.ErrorLabel:getElement(btn.color)
 
-    local amount            = --[[---@type number ]] SetupUI.NumberOfSetupCards:getSeatElement(btn.color):getInputNumber()
+    local amount            = --[[---@type number ]] SetupUI.NumberOfSetupCards:getElement(btn.color):getInputNumber()
     if amount == nil then return coloredErrorLabel:setText("Please enter a starting card amount!") end
     if amount <= 0 then return coloredErrorLabel:setText("Please enter a number above 0!") end
 
@@ -85,18 +85,4 @@ SetupUI.StartSetupButton:executeOnAll(function(el)
     el.onClick = runSetup
 end)
 
---local SeatRect = --[[---@type bs__BUIElementSeatManager<bs__BUIPanel> ]]BUI.createElementSeatManager("BUIPanel", "SeatRect")
--- SeatRect:executeOnAll(function(el)
---     el:setBackgroundColor(Color.fromString(el.color))
---     el:setVisibility(el.color)
---     el:setSize(100, 100)
---     el:setRectAlignment("MiddleRight")
--- end)
---
---local SeatText = --[[---@type bs__BUIElementSeatManager<bs__BUIText> ]]BUI.createElementSeatManager("BUIText", "SeatText", SeatRect)
---SeatText:executeOnAll(function(el)
---    el:setText(el.color)
---end)
-
--- UI
 
